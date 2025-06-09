@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>ورود</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(function() {
+      $('#loginForm').on('submit', function(e) {
+        e.preventDefault();
+
+        $.ajax({
+          url: '/auth/token/',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            username: $('#username').val(),
+            password: $('#password').val(),
+          }),
+          success: function(data) {
+            alert("ورود موفق بود!");
+            // می‌تونی توکن رو در localStorage ذخیره کنی یا ریدایرکت کنی
+            localStorage.setItem('access_token', data.access);
+            localStorage.setItem('refresh', data.refresh);
+            window.location.href = '/'; // یا هر جایی که بخوای
+          },
+          error: function(xhr) {
+            alert("خطا: " + (xhr.responseJSON.detail || "ورود ناموفق بود"));
+          }
+        });
+      });
+    });
+  </script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-md mx-auto bg-white p-6 rounded-xl shadow">
+    <h2 class="text-xl mb-4 text-right">فرم ورود</h2>
+    <form id="loginForm" class="space-y-4">
+      <input id="username" type="text" placeholder="نام کاربری" class="w-full p-2 border rounded text-right" required>
+      <input id="password" type="password" placeholder="رمز عبور" class="w-full p-2 border rounded text-right" required>
+      <button type="submit" class="bg-blue-600 text-white p-2 rounded w-full">ورود</button>
+    </form>
+  </div>
+</body>
+</html>

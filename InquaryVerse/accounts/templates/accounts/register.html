@@ -1,0 +1,79 @@
+<!-- templates/register.html -->
+<!DOCTYPE html>
+<html lang="fa">
+<head>
+  <meta charset="UTF-8">
+  <title>ثبت‌نام</title>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    $(function() {
+      $('#registerForm').on('submit', function(e) {
+        e.preventDefault();
+        $.ajax({
+          url: '/auth/register-api/',
+          method: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({
+            username: $('#username').val(),
+            email: $('#email').val(),
+            password: $('#password').val(),
+            password2: $('#password2').val(),
+            is_company: $('#is_company').is(':checked'),
+            national_id: $('#national_id').val(),
+            company_name: $('#company_name').val(),
+            economic_code: $('#economic_code').val(),
+            registration_number: $('#registration_number').val(),
+            postal_code: $('#postal_code').val(),
+            mobile: $('#mobile').val(),
+          }),
+          success: function(data) {
+            alert("ثبت‌نام موفق بود!");
+            window.location.href = "/auth/login/";
+          },
+          error: function(xhr) {
+            alert("خطا: " + JSON.stringify(xhr.responseJSON));
+          }
+        });
+      });
+
+      $('#is_company').change(function() {
+        if ($(this).is(':checked')) {
+          $('.company-fields').show();
+          $('.personal-fields').hide();
+        } else {
+          $('.company-fields').hide();
+          $('.personal-fields').show();
+        }
+      }).trigger('change');
+    });
+  </script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-lg mx-auto bg-white p-6 rounded-xl shadow">
+    <h2 class="text-xl mb-4 text-right">فرم ثبت‌نام</h2>
+    <form id="registerForm" class="space-y-4">
+      <input id="username" type="text" placeholder="نام کاربری" class="w-full p-2 border rounded text-right" required>
+      <input id="email" type="email" placeholder="ایمیل" class="w-full p-2 border rounded text-right">
+      <input id="password" type="password" placeholder="رمز عبور" class="w-full p-2 border rounded text-right" required>
+      <input id="password2" type="password" placeholder="تکرار رمز عبور" class="w-full p-2 border rounded text-right" required>
+      <label class="block text-right"><input type="checkbox" id="is_company"> ثبت نام برای شرکت و شرکت های واسطه</label>
+
+      <div class="personal-fields">
+        <input id="national_id" type="text" placeholder="کد ملی" class="w-full p-2 border rounded text-right">
+      </div>
+
+      <div class="company-fields hidden">
+        <input id="company_name" type="text" placeholder="نام شرکت" class="w-full p-2 border rounded text-right">
+        <input id="economic_code" type="text" placeholder="کد اقتصادی" class="w-full p-2 border rounded text-right">
+        <input id="registration_number" type="text" placeholder="شماره ثبت" class="w-full p-2 border rounded text-right">
+        <input id="postal_code" type="text" placeholder="کد پستی" class="w-full p-2 border rounded text-right">
+      </div>
+
+      <input id="mobile" type="text" placeholder="شماره موبایل" class="w-full p-2 border rounded text-right">
+
+      <button type="submit" class="bg-blue-600 text-white p-2 rounded w-full">ثبت‌نام</button>
+    </form>
+  </div>
+</body>
+</html>
