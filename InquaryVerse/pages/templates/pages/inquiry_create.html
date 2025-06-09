@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>ارسال درخواست استعلام</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-lg mx-auto bg-white p-6 rounded-xl shadow">
+    <h2 class="text-xl mb-6 text-right font-semibold">ارسال درخواست استعلام</h2>
+    <form id="inquiryForm" class="space-y-4 text-right">
+      <input id="product_type" type="text" placeholder="نوع کالا" class="w-full p-2 border rounded" required />
+
+      <select id="container_type" class="w-full p-2 border rounded" required>
+        <option value="" disabled selected>نوع کانتینر</option>
+        <option value="20">۲۰ فوت</option>
+        <option value="40">۴۰ فوت</option>
+      </select>
+
+      <input id="container_count" type="number" min="1" placeholder="تعداد کانتینر" class="w-full p-2 border rounded" required />
+
+      <select id="origin" class="w-full p-2 border rounded" required>
+        <option value="" disabled selected>مبدأ (بندر)</option>
+      </select>
+
+      <label class="inline-flex items-center space-x-2 space-x-reverse">
+        <input type="checkbox" id="all_ports" class="form-checkbox" />
+        <span>همه بنادر؟</span>
+      </label>
+
+      <input id="destination" type="text" placeholder="مقصد" class="w-full p-2 border rounded" required />
+
+      <input id="target_price" type="number" min="0" step="0.01" placeholder="قیمت پیشنهادی (اختیاری)" class="w-full p-2 border rounded" />
+
+      <textarea id="description" placeholder="توضیحات (اختیاری)" rows="4" class="w-full p-2 border rounded"></textarea>
+
+      <button type="submit" class="bg-blue-600 text-white p-2 rounded w-full hover:bg-blue-700">ارسال درخواست</button>
+    </form>
+  </div>
+
+  <script>
+    $(function() {
+      // بارگذاری بنادر از API
+      $.ajax({
+        url: '/api/ports/',
+        method: 'GET',
+        success: function(data) {
+          const originSelect = $('#origin');
+          originSelect.empty();
+          originSelect.append('<option value="" disabled selected>مبدأ (بندر)</option>');
+          data.forEach(port => {
+            originSelect.append(`<option value="${port.id}">${port.name}</option>`);
+          });
+        },
+        error: function() {
+          alert('خطا در بارگذاری بنادر.');
+        }
+      });
+
+      $('#inquiryForm').on('submit', function(e) {
+        e.preventDefault();
+
+        const accessToken = localStorage.getItem('access_token');
+        if (!accessToken) {
+          alert('لطفا ابتدا وارد شوید.');
+          window.location.href = '/auth/login/';
+          return;
+        }
+
+        const postData = {
+          product_type: $('#product_type').val(),
+          container_type: $('#container_type').val(),
+          container_count: parseInt($('#container_count').val()),
+          origin: $('#origin').val(),
+          all_ports: $('#all_ports').is(':checked'),
+          destination: $('#destination').val(),
+          target_price: $('#target_price').val() ? parseFloat($('#target_price').val()) : null,
+          description: $('#description').val()
+        };
+
+        $.ajax({
+          url: '/api/requests/inquiries/',
+          method: 'POST',
+          contentType: 'application/json',
+          headers: {
+            'Authorization': 'Bearer ' + accessToken
+          },
+          data: JSON.stringify(postData),
+          success: function() {
+            alert('درخواست با موفقیت ثبت شد!');
+            $('#inquiryForm')[0].reset();
+          },
+          error: function(xhr) {
+            const err = xhr.responseJSON || {};
+            alert('خطا در ارسال درخواست:\n' + JSON.stringify(err));
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

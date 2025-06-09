@@ -1,0 +1,64 @@
+<!-- templates/inquiry_list.html -->
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <title>لیست درخواست‌ها</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body class="bg-gray-100 p-8">
+  <div class="max-w-4xl mx-auto bg-white p-6 rounded-xl shadow">
+    <h1 class="text-2xl mb-6 text-right">لیست درخواست‌ها</h1>
+    <table class="min-w-full border-collapse border border-gray-300">
+      <thead>
+        <tr class="bg-blue-600 text-white text-right">
+          <th class="border border-gray-300 px-4 py-2">کاربر</th>
+          <th class="border border-gray-300 px-4 py-2">نوع کالا</th>
+          <th class="border border-gray-300 px-4 py-2">نوع کانتینر</th>
+          <th class="border border-gray-300 px-4 py-2">مبدا</th>
+          <th class="border border-gray-300 px-4 py-2">مقصد</th>
+          <th class="border border-gray-300 px-4 py-2">قیمت پیشنهادی</th>
+          <th class="border border-gray-300 px-4 py-2">تاریخ ثبت</th>
+        </tr>
+      </thead>
+      <tbody id="inquiryTableBody" class="text-right">
+        <tr><td colspan="3" class="text-center py-4">در حال بارگذاری...</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    $(document).ready(function() {
+      $.ajax({
+        url: '/api/requests/',
+        method: 'GET',
+        success: function(data) {
+          let tbody = $('#inquiryTableBody');
+          tbody.empty();
+          if (data.length === 0) {
+            tbody.append('<tr><td colspan="3" class="text-center py-4">درخواستی یافت نشد</td></tr>');
+            return;
+          }
+          data.forEach(function(item) {
+            tbody.append(`
+              <tr class="border-b border-gray-300">
+                <td class="border border-gray-300 px-4 py-2">${item.user}</td>
+                <td class="border border-gray-300 px-4 py-2">${item.product_type}</td>
+                <td class="border border-gray-300 px-4 py-2">${item.container_type}</td>
+                <td class="border border-gray-300 px-4 py-2">${item.origin}</td>
+                <td class="border border-gray-300 px-4 py-2">${item.destination}</td>
+                <td class="border border-gray-300 px-4 py-2">${item.target_price}</td>
+                <td class="border border-gray-300 px-4 py-2">${new Date(item.created_at).toLocaleDateString('fa-IR')}</td>
+              </tr>
+            `);
+          });
+        },
+        error: function() {
+          $('#inquiryTableBody').html('<tr><td colspan="3" class="text-center text-red-600 py-4">خطا در دریافت اطلاعات</td></tr>');
+        }
+      });
+    });
+  </script>
+</body>
+</html>
